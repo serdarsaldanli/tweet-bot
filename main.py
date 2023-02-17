@@ -35,7 +35,6 @@ for tweet in tweets_list:
 
 print(filtered_tweets)
 
-
 # Connect to the MetaTrader 5 terminal
 if not mt5.initialize():
     print("initialize() failed, error code =", mt5.last_error())
@@ -44,69 +43,84 @@ if not mt5.initialize():
 if "Sell" in filtered_tweets:
 
     # prepare a trade request
-    symbol = None
-    for i, text in enumerate(filtered_tweets):
-        if i % 4 == 0 and text.startswith("#"):
-            symbol = text
-            break
+    symbol = filtered_tweets[0]
+    symbol_info = mt5.symbol_info(symbol)
+    if symbol_info is None:
+        print(symbol, "not found, can not call order_check()")
+        mt5.shutdown()
+        quit()
 
-    if symbol:
-        action = mt5.TRADE_ACTION_DEAL
-        type = mt5.ORDER_TYPE_SELL
-        volume = 0.10
-        price = mt5.symbol_info_tick(symbol).bid
-        request = {
-            "action": action,
-            "symbol": symbol,
-            "type": type,
-            "volume": volume,
-            "price": price,
-            "sl": price + 10 * mt5.symbol_info(symbol).point,
-            "tp": price - 30 * mt5.symbol_info(symbol).point,
-            "deviation": 10,
-            "magic": 123456,
-            "comment": "Python sell order",
-        }
-        result = mt5.order_send(request)
+    if not symbol_info.visible:
+        print(symbol, "is not visible, trying to switch on")
+        if not mt5.symbol_select(symbol, True):
+            print("symbol_select({}}) failed, exit", symbol)
+            mt5.shutdown()
+            quit()
 
-        if result.retcode != mt5.TRADE_RETCODE_DONE:
-            print("Failed to send trade request: ", result.comment)
-        else:
-            print("Trade request sent successfully: ", result)
+    lot = 0.1
+    point = mt5.symbol_info(symbol).point
+    price = float(filtered_tweets[2])
+    deviation = 20
+    request = {
+        "action": mt5.TRADE_ACTION_PENDING,
+        "symbol": symbol,
+        "volume": lot,
+        "type": mt5.ORDER_TYPE_SELL,
+        "price": price,
+        "sl": round((price + 100 * point), 3),
+        "tp": round((price - 300 * point), 3),
+        "deviation": deviation,
+        "magic": 234000,
+        "comment": "python script open",
+        "type_time": mt5.ORDER_TIME_GTC,
+        "type_filling": mt5.ORDER_FILLING_RETURN,
+    }
+
+    # send a trading request
+    result = mt5.order_send(request)
+    print(result)
+
+    # shut down connection to the MetaTrader 5 terminal
+    mt5.shutdown()
 
 else:
     # Place a buy order
-    symbol = None
-    for i, text in enumerate(filtered_tweets):
-        if i % 4 == 0 and text.startswith("#"):
-            symbol = text
-            break
+    symbol = filtered_tweets[0]
+    symbol_info = mt5.symbol_info(symbol)
+    if symbol_info is None:
+        print(symbol, "not found, can not call order_check()")
+        mt5.shutdown()
+        quit()
 
-    if symbol:
-        action = mt5.TRADE_ACTION_DEAL
-        type = mt5.ORDER_TYPE_BUY
-        volume = 0.10
-        price = mt5.symbol_info_tick(symbol).ask
-        request = {
-            "action": action,
-            "symbol": symbol,
-            "type": type,
-            "volume": volume,
-            "price": price,
-            "sl": price - 10 * mt5.symbol_info(symbol).point,
-            "tp": price + 30 * mt5.symbol_info(symbol).point,
-            "deviation": 10,
-            "magic": 123456,
-            "comment": "Python buy order",
-        }
-        result = mt5.order_send(request)
+    if not symbol_info.visible:
+        print(symbol, "is not visible, trying to switch on")
+        if not mt5.symbol_select(symbol, True):
+            print("symbol_select({}}) failed, exit", symbol)
+            mt5.shutdown()
+            quit()
 
-        if result.retcode != mt5.TRADE_RETCODE_DONE:
-            print("Failed to send trade request: ", result.comment)
-        else:
-            print("Trade request sent successfully: ", result)
+    lot = 0.1
+    point = mt5.symbol_info(symbol).point
+    price = float(filtered_tweets[2])
+    deviation = 20
+    request = {
+        "action": mt5.TRADE_ACTION_PENDING,
+        "symbol": symbol,
+        "volume": lot,
+        "type": mt5.ORDER_TYPE_BUY,
+        "price": price,
+        "sl": round((price - 100 * point), 3),
+        "tp": round((price + 300 * point), 3),
+        "deviation": deviation,
+        "magic": 234000,
+        "comment": "python script open",
+        "type_time": mt5.ORDER_TIME_GTC,
+        "type_filling": mt5.ORDER_FILLING_RETURN,
+    }
 
-    # Disconnect from the MetaTrader 5 terminal
+    # send a trading request
+    result = mt5.order_send(request)
+    print(result)
+
+    # shut down connection to the MetaTrader 5 terminal
     mt5.shutdown()
-
-    print(filtered_tweets[1])
