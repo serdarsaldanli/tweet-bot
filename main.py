@@ -6,6 +6,7 @@ search_query1 = "pair: #"
 search_query2 = "trade: "
 search_query3 = "entry: "
 search_query4 = "sl: "
+search_query5 = "tp: "
 
 # Using TwitterSearchScraper to scrape data and append tweets to list
 tweets_list = []
@@ -22,15 +23,18 @@ for tweet in tweets_list:
         index2 = tweet.rawContent.lower().index(search_query2)
         index3 = tweet.rawContent.lower().index(search_query3)
         index4 = tweet.rawContent.lower().index(search_query4)
+        index5 = tweet.rawContent.lower().index(search_query5)
         extracted_text1 = tweet.rawContent[index1 + len(search_query1):index1 + len(search_query1) + 6]
         extracted_text2 = tweet.rawContent[index2 + len(search_query2):index2 + len(search_query2) + 4]
         extracted_text3 = tweet.rawContent[index3 + len(search_query3):index3 + len(search_query3) + 7]
         extracted_text4 = tweet.rawContent[index4 + len(search_query4):index4 + len(search_query4) + 7]
+        extracted_text5 = tweet.rawContent[index5 + len(search_query5):index5 + len(search_query5) + 7]
         filtered_tweets.append(extracted_text1)
         filtered_tweets.append(extracted_text2)
         filtered_tweets.append(extracted_text3)
         filtered_tweets.append(extracted_text4)
-        if len(filtered_tweets) == 4:
+        filtered_tweets.append(extracted_text5)
+        if len(filtered_tweets) == 5:
             break
 
 print(filtered_tweets)
@@ -59,7 +63,9 @@ if "Sell" in filtered_tweets:
 
     lot = 0.1
     point = mt5.symbol_info(symbol).point
-    price = float(filtered_tweets[2])
+    price = round(float(filtered_tweets[2]), 3)
+    sl = round(float(filtered_tweets[3]), 3)
+    tp = round(float(filtered_tweets[4]), 3)
     deviation = 20
     request = {
         "action": mt5.TRADE_ACTION_PENDING,
@@ -67,21 +73,20 @@ if "Sell" in filtered_tweets:
         "volume": lot,
         "type": mt5.ORDER_TYPE_SELL,
         "price": price,
-        "sl": round((price + 100 * point), 3),
-        "tp": round((price - 300 * point), 3),
+        "sl": sl,
+        "tp": tp,
         "deviation": deviation,
         "magic": 234000,
         "comment": "python script open",
         "type_time": mt5.ORDER_TIME_GTC,
-        "type_filling": mt5.ORDER_FILLING_RETURN,
+        "type_filling": mt5.ORDER_FILLING_IOC,
     }
 
     # send a trading request
     result = mt5.order_send(request)
-    print(result)
-
-    # shut down connection to the MetaTrader 5 terminal
+    print(result);
     mt5.shutdown()
+    quit()
 
 else:
     # Place a buy order
@@ -101,7 +106,9 @@ else:
 
     lot = 0.1
     point = mt5.symbol_info(symbol).point
-    price = float(filtered_tweets[2])
+    price = round(float(filtered_tweets[2]), 3)
+    sl = round(float(filtered_tweets[3]), 3)
+    tp = round(float(filtered_tweets[4]), 3)
     deviation = 20
     request = {
         "action": mt5.TRADE_ACTION_PENDING,
@@ -109,18 +116,18 @@ else:
         "volume": lot,
         "type": mt5.ORDER_TYPE_BUY,
         "price": price,
-        "sl": round((price - 100 * point), 3),
-        "tp": round((price + 300 * point), 3),
+        "sl": sl,
+        "tp": tp,
         "deviation": deviation,
         "magic": 234000,
         "comment": "python script open",
         "type_time": mt5.ORDER_TIME_GTC,
-        "type_filling": mt5.ORDER_FILLING_RETURN,
+        "type_filling": mt5.ORDER_FILLING_IOC,
     }
 
     # send a trading request
     result = mt5.order_send(request)
-    print(result)
+    print(result);
 
-    # shut down connection to the MetaTrader 5 terminal
     mt5.shutdown()
+    quit()
