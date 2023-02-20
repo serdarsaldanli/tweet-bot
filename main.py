@@ -77,7 +77,7 @@ if "Sell" in filtered_tweets:
         "tp": tp,
         "deviation": deviation,
         "magic": 234000,
-        "comment": "python script open",
+        "comment": "Serdar Python Bot",
         "type_time": mt5.ORDER_TIME_GTC,
         "type_filling": mt5.ORDER_FILLING_IOC,
     }
@@ -120,7 +120,7 @@ else:
         "tp": tp,
         "deviation": deviation,
         "magic": 234000,
-        "comment": "python script open",
+        "comment": "Serdar Python Bot",
         "type_time": mt5.ORDER_TIME_GTC,
         "type_filling": mt5.ORDER_FILLING_IOC,
     }
