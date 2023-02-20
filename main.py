@@ -68,7 +68,7 @@ if "Sell" in filtered_tweets:
     tp = round(float(filtered_tweets[4]), 3)
     deviation = 20
     request = {
-        "action": mt5.TRADE_ACTION_PENDING,
+        "action": mt5.TRADE_ACTION_DEAL,
         "symbol": symbol,
         "volume": lot,
         "type": mt5.ORDER_TYPE_SELL,
@@ -111,7 +111,7 @@ else:
     tp = round(float(filtered_tweets[4]), 3)
     deviation = 20
     request = {
-        "action": mt5.TRADE_ACTION_PENDING,
+        "action": mt5.TRADE_ACTION_DEAL,
         "symbol": symbol,
         "volume": lot,
         "type": mt5.ORDER_TYPE_BUY,
