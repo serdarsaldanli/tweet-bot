@@ -131,7 +131,7 @@ def send_order(filtered_tweets):
 
 while True:
     filtered_tweets1 = get_tweets()
-    time.sleep(180)
+    time.sleep(300)
     filtered_tweets2 = get_tweets()
     if filtered_tweets2 == filtered_tweets1:
         print("No new tweet data.")
